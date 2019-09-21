@@ -64,7 +64,7 @@ int main(void)	{
 	int j = 0;
 	/* Infinite loop */
 	while (1)	{
-		i++;
+		j++;
 	}
 }
 
