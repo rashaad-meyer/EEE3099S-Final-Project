@@ -1263,8 +1263,6 @@ void turn_right(void)	{
 
 	}
 
-
-
 }
  8000862:	46c0      	nop			; (mov r8, r8)
  8000864:	46bd      	mov	sp, r7
