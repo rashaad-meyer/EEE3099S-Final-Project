@@ -78,7 +78,7 @@ void init_push_buttons(void) {
 	GPIOA->MODER &= ~GPIO_MODER_MODER3; //set PA3 to input
 	GPIOA->MODER &= ~GPIO_MODER_MODER7; //set PA7 to input
 	GPIOA->MODER &= ~GPIO_MODER_MODER5; //set PA5 to input
-	GPIOA->MODER &= ~GPIO_MODER_MODER6; //set PA5 to input
+	GPIOA->MODER &= ~GPIO_MODER_MODER6; //set PA6 to input
 	// enable pull-up resistors
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR0_0; //enable pull up for PA0
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; //enable pull up for PA1
@@ -86,7 +86,7 @@ void init_push_buttons(void) {
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR3_0; //enable pull up for PA3
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR7_0; //enable pull up for PA7
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR5_0; //enable pull up for PA5
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_0; //enable pull up for PA5
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_0; //enable pull up for PA6
 
 }
 
