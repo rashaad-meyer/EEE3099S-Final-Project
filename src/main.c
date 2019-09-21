@@ -82,6 +82,7 @@ void init_push_buttons(void) {
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; //enable pull up for PA1
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR2_0; //enable pull up for PA2
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR3_0; //enable pull up for PA3
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR7_0; //enable pull up for PA7
 
 }
 
@@ -208,7 +209,7 @@ void init_EXTI (void)	{
 	EXTI -> IMR |= EXTI_IMR_MR1; // unmask external interrupt 1
 	EXTI -> IMR |= EXTI_IMR_MR2; // unmask external interrupt 2
 	EXTI -> IMR |= EXTI_IMR_MR3; // unmask external interrupt 3
-	EXTI -> IMR |= EXTI_IMR_MR7; // unmask external interrupt 3
+	EXTI -> IMR |= EXTI_IMR_MR7; // unmask external interrupt 4
 
 	EXTI -> FTSR |= EXTI_FTSR_TR0; // trigger on falling edge
 	EXTI -> FTSR |= EXTI_FTSR_TR1; // trigger on falling edge
@@ -315,7 +316,7 @@ void turn_left(void)	{
 	}
 
 	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b0101;
+	GPIOB->ODR |= 0b1010;
 
 }
 
@@ -332,6 +333,6 @@ void turn_right(void)	{
 	}
 
 	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b1010;
+	GPIOB->ODR |= 0b0101;
 
 }
