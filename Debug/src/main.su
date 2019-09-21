@@ -1,0 +1,15 @@
+core_cm0.h:629:22:NVIC_EnableIRQ	16	static
+main.c:61:5:main	16	static
+main.c:76:6:init_push_buttons	8	static
+main.c:93:6:init_leds	8	static
+main.c:103:6:init_TIM6	8	static
+main.c:115:6:TIM6_DAC_IRQHandler	8	static
+main.c:182:6:init_PWM	8	static
+main.c:219:6:init_EXTI	8	static
+main.c:247:6:EXTI0_1_IRQHandler	8	static
+main.c:272:6:EXTI2_3_IRQHandler	8	static
+main.c:294:6:EXTI4_15_IRQHandler	8	static
+main.c:307:6:forward	8	static
+main.c:322:6:stop	16	static
+main.c:341:6:turn_left	8	static
+main.c:355:6:turn_right	8	static
