@@ -97,7 +97,7 @@ int main(void)	{
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
 			off_track = 0;
 
 		}
