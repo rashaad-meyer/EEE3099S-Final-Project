@@ -30,7 +30,8 @@ SOFTWARE.
 int i = 0;
 int pwm = 50;
 int increase = 1;
-int mode = 0;
+int mode = 0; // stop = 0; forward = 1; left = 2; right = 3;
+int off_track = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -65,15 +66,41 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
-		if(~GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7)){
+		if( GPIOA->IDR & 0b11 )	{
 
-			GPIOB->ODR &= ~GPIO_ODR_7;
-			GPIOB->ODR |= GPIO_ODR_7;
+			//bypasses else if statements below if left or right sensor is high
+
+		}
+		else if( GPIOA->IDR & (GPIO_IDR_4) )	{
+
+			//adjust by turning right
+			off_track = 1;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
+
+		}
+		else if( GPIOA->IDR & (GPIO_IDR_6) )	{
+
+			//adjust by turning left
+			off_track = 1;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = (pwm-10) * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+		}
+		else if( GPIOA->IDR & GPIO_IDR_5 )	{
+
+			//keep going straight
+			off_track = 0;
 
 		}
 		else{
 
-			GPIOB->ODR &= ~GPIO_ODR_7;
+			//turn around
+			off_track = 2;
 
 		}
 	}
