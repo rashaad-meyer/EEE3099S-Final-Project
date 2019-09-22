@@ -66,7 +66,7 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
-		if( GPIOA->IDR & 0b11 )	{
+		if( GPIOA->IDR & 0b11 && mode == 1)	{
 
 			//bypasses else if statements below if left or right sensor is high
 
@@ -94,10 +94,14 @@ int main(void)	{
 		else if( GPIOA->IDR & GPIO_IDR_5 )	{
 
 			//keep going straight
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
 			off_track = 0;
 
 		}
-		else{
+		else	{
 
 			//turn around
 			off_track = 2;
