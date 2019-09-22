@@ -65,6 +65,17 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
+		if(~GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7)){
+
+			GPIOB->ODR &= ~GPIO_ODR_7;
+			GPIOB->ODR |= GPIO_ODR_7;
+
+		}
+		else{
+
+			GPIOB->ODR &= ~GPIO_ODR_7;
+
+		}
 	}
 }
 
@@ -77,16 +88,19 @@ void init_push_buttons(void) {
 	GPIOA->MODER &= ~GPIO_MODER_MODER2; //set PA2 to input
 	GPIOA->MODER &= ~GPIO_MODER_MODER3; //set PA3 to input
 	GPIOA->MODER &= ~GPIO_MODER_MODER7; //set PA7 to input
-	GPIOA->MODER &= ~GPIO_MODER_MODER5; //set PA5 to input
-	GPIOA->MODER &= ~GPIO_MODER_MODER6; //set PA6 to input
+
+	GPIOA->MODER &= ~GPIO_MODER_MODER5;	//set PB5 to input
+	GPIOA->MODER &= ~GPIO_MODER_MODER6;	//set PB6 to input
+
 	// enable pull-up resistors
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR0_0; //enable pull up for PA0
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; //enable pull up for PA1
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR2_0; //enable pull up for PA2
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR3_0; //enable pull up for PA3
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR7_0; //enable pull up for PA7
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR5_0; //enable pull up for PA5
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_0; //enable pull up for PA6
+
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR5_0; //enable pull up for PB5
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_0; //enable pull up for PB6
 
 }
 
@@ -95,8 +109,10 @@ void init_leds(void)	{
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN; //enable clock for push-buttons
 	//set pins to outputs
 	GPIOB->MODER &= 0xFFFFFF00;
-	GPIOB->MODER |= 0b0101010101010101;
-	GPIOB->ODR &= 0xFF00;
+	GPIOB->MODER |= (GPIO_MODER_MODER7_0|GPIO_MODER_MODER0_0|
+			GPIO_MODER_MODER1_0|GPIO_MODER_MODER2_0|GPIO_MODER_MODER3_0|
+			GPIO_MODER_MODER4_0|GPIO_MODER_MODER5_0|GPIO_MODER_MODER6_0);
+	GPIOB->ODR &= ~GPIO_ODR_7;
 
 }
 
@@ -207,23 +223,23 @@ void init_EXTI (void)	{
 	SYSCFG -> EXTICR[0] |= SYSCFG_EXTICR1_EXTI1_PA; // map PA1 to EXTI1
 	SYSCFG -> EXTICR[0] |= SYSCFG_EXTICR1_EXTI2_PA; // map PA2 to EXTI2
 	SYSCFG -> EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PA; // map PA3 to EXTI3
-	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI7_PA; // map PA7 to EXTI7
+	//SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI7_PA; // map PA7 to EXTI7
 
 	EXTI -> IMR |= EXTI_IMR_MR0; // unmask external interrupt 0
 	EXTI -> IMR |= EXTI_IMR_MR1; // unmask external interrupt 1
 	EXTI -> IMR |= EXTI_IMR_MR2; // unmask external interrupt 2
 	EXTI -> IMR |= EXTI_IMR_MR3; // unmask external interrupt 3
-	EXTI -> IMR |= EXTI_IMR_MR7; // unmask external interrupt 4
+	//EXTI -> IMR |= EXTI_IMR_MR7; // unmask external interrupt 4
 
 	EXTI -> FTSR |= EXTI_FTSR_TR0; // trigger on falling edge
 	EXTI -> FTSR |= EXTI_FTSR_TR1; // trigger on falling edge
 	EXTI -> FTSR |= EXTI_FTSR_TR2; // trigger on falling edge
 	EXTI -> FTSR |= EXTI_FTSR_TR3; // trigger on falling edge
-	EXTI -> FTSR |= EXTI_FTSR_TR7; // trigger on falling edge
+	//EXTI -> FTSR |= EXTI_FTSR_TR7; // trigger on falling edge
 
 	NVIC_EnableIRQ(EXTI0_1_IRQn); // enable EXTI0 to EXTI1 interrupt in the NVIC
 	NVIC_EnableIRQ(EXTI2_3_IRQn); // enable EXTI2 to EXTI3 interrupt in the NVIC
-	NVIC_EnableIRQ(EXTI4_15_IRQn); // enable EXTI4 to EXTI15 interrupt line in the NVIC
+	//NVIC_EnableIRQ(EXTI4_15_IRQn); // enable EXTI4 to EXTI15 interrupt line in the NVIC
 
 }
 
@@ -261,10 +277,18 @@ void EXTI2_3_IRQHandler(void)	{
 		i = 63;
 	}*/
 	//turn_right();
-	mode = 3;
+	if (mode == 3){
 
+		mode = 2;
+
+	}
+	else {
+
+		mode = 3;
+
+	}
 }
-
+/*
 void EXTI4_15_IRQHandler(void)	{
 
 	EXTI -> PR |= EXTI_PR_PR7; // clear the interrupt pending bit
@@ -276,7 +300,7 @@ void EXTI4_15_IRQHandler(void)	{
 	//stop();
 	mode = 0;
 
-}
+}*/
 
 void forward(void)	{
 
