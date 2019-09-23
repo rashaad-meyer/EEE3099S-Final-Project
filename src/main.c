@@ -32,6 +32,7 @@ int pwm = 50;
 int increase = 1;
 int mode = 0; // stop = 0; forward = 1; left = 2; right = 3;
 int off_track = 0;
+int turning = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -296,19 +297,19 @@ void EXTI0_1_IRQHandler(void)	{
 
 	EXTI -> PR |= EXTI_PR_PR0; // clear the interrupt pending bit
 	// User Interrupt Service Routine Here
-	/*
-	if ( i < 64 )	{
-		GPIOB->ODR &= 0xFF00;
-		GPIOB->ODR |= i<<2;
-		i++;
+	//mode = 1;
+	mode = 0;
+
+	if(GPIOA->IDR & GPIO_IDR_0){
+
+		turning = 2;
+
 	}
-	else {
-		GPIOB->ODR &= 0xFF00;
-		i = 0;
+	else if(GPIOA->IDR & GPIO_IDR_1) {
+
+		turning = 3;
+
 	}
-	*/
-	//forward();
-	mode = 1;
 
 }
 
@@ -370,11 +371,20 @@ void forward(void)	{
 
 void stop(void)	{
 
-	if ( pwm > 0 ){
+	if ( pwm > 0 )	{
+
 		pwm -= 10;
+
 	}
-	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b0110;
+	else if ( pwm == 0 )	{
+
+		mode = turning;
+		turning = 0;
+		GPIOB->ODR &= 0xFF00;
+		GPIOB->ODR |= 0b0110;
+
+	}
+
 	TIM2->CCR3 = pwm * 80; // Red = 20%
 	TIM2->CCR4 = pwm * 80; // Green = 90%
 
