@@ -66,12 +66,30 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
+
+		//tesing if motors turn
+		if (~GPIOA->IDR & GPIO_IDR_6){
+
+			mode = 0;
+
+		}
+		else if (~GPIOA->IDR & GPIO_IDR_7){
+
+			mode = 3;
+
+		}
+		else if (~GPIOA->IDR & GPIO_IDR_5){
+
+			mode = 2;
+
+		}
+		/*
 		if( GPIOA->IDR & 0b11 && mode != 1)	{
 
 			//bypasses else if statements below if left or right sensor is high
 
 		}
-		else if( GPIOA->IDR & (GPIO_IDR_4) )	{
+		else if( GPIOA->IDR & (GPIO_IDR_5) )	{
 
 			//adjust by turning right
 			off_track = 1;
@@ -81,7 +99,7 @@ int main(void)	{
 			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
 
 		}
-		else if( GPIOA->IDR & (GPIO_IDR_6) )	{
+		else if( GPIOA->IDR & (GPIO_IDR_7) )	{
 
 			//adjust by turning left
 			off_track = 1;
@@ -91,7 +109,7 @@ int main(void)	{
 			TIM2->CCR4 = pwm * 80; // Green = 90%
 
 		}
-		else if( GPIOA->IDR & GPIO_IDR_5 )	{
+		else if( GPIOA->IDR & GPIO_IDR_6 )	{
 
 			//keep going straight
 			GPIOB->ODR &= 0xFF00;
@@ -106,7 +124,7 @@ int main(void)	{
 			//turn around
 			off_track = 2;
 
-		}
+		}*/
 	}
 }
 
