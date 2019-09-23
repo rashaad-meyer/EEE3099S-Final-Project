@@ -66,7 +66,7 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
-		if( GPIOA->IDR & 0b11 && mode == 1)	{
+		if( GPIOA->IDR & 0b11 && mode != 1)	{
 
 			//bypasses else if statements below if left or right sensor is high
 
