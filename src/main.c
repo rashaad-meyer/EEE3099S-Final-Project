@@ -70,7 +70,7 @@ int main(void)	{
 	while (1)	{
 		j++;
 		//
-		//tesing if motors turn
+		//if in turning mode it will check whether the 2 middle sensors are high
 		if( mode == 0 || mode == 1){
 
 			//if going straight or stopping do nothing
@@ -101,7 +101,7 @@ int main(void)	{
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
+			TIM2->CCR4 = (pwm-50) * 80; // Green = 90%
 
 		}
 		else if( GPIOA->IDR & (GPIO_IDR_7) )	{
@@ -110,7 +110,7 @@ int main(void)	{
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = (pwm-10) * 80; // Red = 20%
+			TIM2->CCR3 = (pwm-50) * 80; // Red = 20%
 			TIM2->CCR4 = pwm * 80; // Green = 90%
 
 		}
