@@ -23,7 +23,7 @@ SOFTWARE.
 */
 //testing github
 /* Includes */
-//C:\Users\Viibrem\Atollic\TrueSTUDIO\STM32_workspace_9.3\EEE3096S Final project
+//C:\Users\Viibrem\Atollic\TrueSTUDIO\STM32_workspace_9.3\'EEE3096S Final project'
 #include "stm32f0xx.h"
 
 /* Private macro */
