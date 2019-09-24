@@ -70,6 +70,8 @@ int main(void)	{
 	while (1)	{
 		j++;
 		//
+
+
 		//if in turning mode it will check whether the 2 middle sensors are high
 		if( mode == 0 || mode == 1){
 
@@ -309,14 +311,31 @@ void EXTI0_1_IRQHandler(void)	{
 	//mode = 1;
 	mode = 0;
 
-	if(~GPIOA->IDR & GPIO_IDR_0){
+	if (start == 1){
 
-		turning = 2;
+		if( ~GPIOA->IDR & GPIO_IDR_0 && ~GPIOA->IDR & GPIO_IDR_1 &&
+				GPIOA->IDR & GPIO_IDR_5 && GPIOA->IDR & GPIO_IDR_6 && GPIOA->IDR & GPIO_IDR_7 ){
+
+			//finish the mapping
+			start = 2;
+			mode = 0;
+
+		}
+		else if(~GPIOA->IDR & GPIO_IDR_0){
+
+			turning = 2;
+
+		}
+		else if(~GPIOA->IDR & GPIO_IDR_1) {
+
+			turning = 3;
+
+		}
 
 	}
-	else if(~GPIOA->IDR & GPIO_IDR_1) {
+	else if (start == 3){
 
-		turning = 3;
+		//race mode
 
 	}
 
