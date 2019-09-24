@@ -23,6 +23,7 @@ SOFTWARE.
 */
 //testing github
 /* Includes */
+//C:\Users\Viibrem\Atollic\TrueSTUDIO\STM32_workspace_9.3\EEE3096S Final project
 #include "stm32f0xx.h"
 
 /* Private macro */
@@ -33,6 +34,7 @@ int increase = 1;
 int mode = 0; // stop = 0; forward = 1; left = 2; right = 3;
 int off_track = 0;
 int turning = 0;
+int start = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -67,24 +69,26 @@ int main(void)	{
 	/* Infinite loop */
 	while (1)	{
 		j++;
-
+		//
 		//tesing if motors turn
-		if (~GPIOA->IDR & GPIO_IDR_6){
+		if( mode == 0 || mode == 1){
 
+			//if going straight or stopping do nothing
+
+		}
+		else if (GPIOA->IDR & GPIO_IDR_7 && mode == 3){
+
+			turning = 1;
 			mode = 0;
 
 		}
-		else if (~GPIOA->IDR & GPIO_IDR_7){
+		else if (GPIOA->IDR & GPIO_IDR_5 && mode == 2){
 
-			mode = 3;
-
-		}
-		else if (~GPIOA->IDR & GPIO_IDR_5){
-
-			mode = 2;
+			turning = 1;
+			mode = 0;
 
 		}
-		/*
+
 		if( GPIOA->IDR & 0b11 && mode != 1)	{
 
 			//bypasses else if statements below if left or right sensor is high
@@ -123,9 +127,10 @@ int main(void)	{
 		else	{
 
 			//turn around
-			off_track = 2;
+			turning = 2;
+			mode = 0;
 
-		}*/
+		}
 	}
 }
 
@@ -143,14 +148,17 @@ void init_push_buttons(void) {
 	GPIOA->MODER &= ~GPIO_MODER_MODER6;	//set PB6 to input
 
 	// enable pull-up resistors
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR0|GPIO_PUPDR_PUPDR1|GPIO_PUPDR_PUPDR2|
+			GPIO_PUPDR_PUPDR3|GPIO_PUPDR_PUPDR7|GPIO_PUPDR_PUPDR5|GPIO_PUPDR_PUPDR6);
+
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR0_0; //enable pull up for PA0
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; //enable pull up for PA1
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR2_0; //enable pull up for PA2
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR3_0; //enable pull up for PA3
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR7_0; //enable pull up for PA7
 
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR5_0; //enable pull up for PB5
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_0; //enable pull up for PB6
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR5_1; //enable pull down for PB5
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR6_1; //enable pull down for PB6
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR7_1; //enable pull down for PA7
 
 }
 
@@ -185,6 +193,7 @@ void TIM6_IRQHandler (void)	{
 
 	if (mode == 0){
 
+		stop();
 		stop();
 
 	}
@@ -300,12 +309,12 @@ void EXTI0_1_IRQHandler(void)	{
 	//mode = 1;
 	mode = 0;
 
-	if(GPIOA->IDR & GPIO_IDR_0){
+	if(~GPIOA->IDR & GPIO_IDR_0){
 
 		turning = 2;
 
 	}
-	else if(GPIOA->IDR & GPIO_IDR_1) {
+	else if(~GPIOA->IDR & GPIO_IDR_1) {
 
 		turning = 3;
 
@@ -327,14 +336,16 @@ void EXTI2_3_IRQHandler(void)	{
 		i = 63;
 	}*/
 	//turn_right();
-	if (mode == 3){
+	if (start == 0){
 
-		mode = 2;
+		start = 1;
+		mode = 1;
 
 	}
-	else {
+	else if (start == 2){
 
-		mode = 3;
+		start = 3;
+		mode = 1;
 
 	}
 }
@@ -378,8 +389,18 @@ void stop(void)	{
 	}
 	else if ( pwm == 0 )	{
 
-		mode = turning;
-		turning = 0;
+		if ( GPIOA->IDR & GPIO_IDR_6 && turning == 3){
+
+			turning = 1;
+
+		}
+		if (turning != 0)	{
+
+			mode = turning;
+			turning = 0;
+
+		}
+
 		GPIOB->ODR &= 0xFF00;
 		GPIOB->ODR |= 0b0110;
 
