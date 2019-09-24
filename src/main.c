@@ -382,6 +382,9 @@ void EXTI4_15_IRQHandler(void)	{
 
 void forward(void)	{
 
+	GPIOB->ODR &= 0xFF00;
+	GPIOB->ODR |= 0b0110;
+
 	if ( pwm < 100 ){
 
 		pwm += 10;
@@ -390,8 +393,7 @@ void forward(void)	{
 
 
 	}
-	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b0110;
+
 	TIM2->CCR3 = pwm * 80; // Red = 20%
 	TIM2->CCR4 = pwm * 80; // Green = 90%
 
@@ -430,6 +432,9 @@ void stop(void)	{
 
 void turn_left(void)	{
 
+	GPIOB->ODR &= 0xFF00;
+	GPIOB->ODR |= 0b1010;
+
 	if ( pwm < 100 )	{
 
 		pwm += 10;
@@ -440,13 +445,15 @@ void turn_left(void)	{
 
 	}
 
-	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b1010;
+
 
 }
 
 void turn_right(void)	{
 
+	GPIOB->ODR &= 0xFF00;
+	GPIOB->ODR |= 0b0101;
+
 	if ( pwm < 100 )	{
 
 		pwm += 10;
@@ -457,7 +464,6 @@ void turn_right(void)	{
 
 	}
 
-	GPIOB->ODR &= 0xFF00;
-	GPIOB->ODR |= 0b0101;
+
 
 }
