@@ -101,7 +101,7 @@ int main(void)	{
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (pwm-50) * 80; // Green = 90%
+			TIM2->CCR4 = (pwm-10) * 80; // Green = 90%
 
 		}
 		else if( GPIOA->IDR & (GPIO_IDR_7) )	{
@@ -110,7 +110,7 @@ int main(void)	{
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = (pwm-50) * 80; // Red = 20%
+			TIM2->CCR3 = (pwm-10) * 80; // Red = 20%
 			TIM2->CCR4 = pwm * 80; // Green = 90%
 
 		}
@@ -214,7 +214,31 @@ void TIM6_IRQHandler (void)	{
 	}
 
 	/*
-
+	if (increase == 1){
+		if (pwm < 100)	{
+			pwm+=5;
+			//TIM2->CCR1 = pwm * 80; // Red = 20%
+			//TIM2->CCR2 = (100 - pwm) * 80; // Green = 90%
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = (100 - pwm) * 80; // Green = 90%
+		}
+		else{
+			increase = 0;
+		}
+	}
+	else	{
+		if (pwm > 0)	{
+			pwm-=5;
+			//TIM2->CCR1 = pwm * 80; // Red = 20%
+			//TIM2->CCR2 = (100 - pwm) * 80; // Green = 90%
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = (100 - pwm) * 80; // Green = 90%
+		}
+		else	{
+			increase = 1;
+		}
+	}
+	*/
 }
 
 void init_PWM(void) {
@@ -322,7 +346,15 @@ void EXTI2_3_IRQHandler(void)	{
 
 	EXTI -> PR |= EXTI_PR_PR2; // clear the interrupt pending bit
 	// User Interrupt Service Routine Here
-
+	/*if ( i > 0 ){
+		GPIOB->ODR &= 0xFF00;
+		GPIOB->ODR |= i<<2;
+		i--;
+	}
+	else{
+		GPIOB->ODR &= 0xFFFF;
+		i = 63;
+	}*/
 	//turn_right();
 	if (start == 0){
 
@@ -434,5 +466,7 @@ void turn_right(void)	{
 		TIM2->CCR4 = pwm * 80; // Green = 90%
 
 	}
+
+
 
 }
