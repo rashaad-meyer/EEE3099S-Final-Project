@@ -70,8 +70,6 @@ int main(void)	{
 	while (1)	{
 		j++;
 		//
-
-
 		//if in turning mode it will check whether the 2 middle sensors are high
 		if( mode == 0 || mode == 1){
 
