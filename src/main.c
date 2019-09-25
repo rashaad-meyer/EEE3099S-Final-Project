@@ -24,6 +24,7 @@ SOFTWARE.
 //testing github
 /* Includes */
 //C:\Users\Viibrem\Atollic\TrueSTUDIO\STM32_workspace_9.3\'EEE3096S Final project'
+//C:/Users/01432300/Documents/CProjects/EEE3099S-Final-Project
 #include "stm32f0xx.h"
 
 /* Private macro */
@@ -94,26 +95,6 @@ int main(void)	{
 			//bypasses else if statements below if left or right sensor is high
 
 		}
-		else if( ~GPIOA->IDR & GPIO_IDR_7 && GPIOA->IDR & GPIO_IDR_6)	{
-
-			//adjust by turning right
-			off_track = 1;
-			GPIOB->ODR &= 0xFF00;
-			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (pwm-50) * 80; // Green = 90%
-
-		}
-		else if( ~GPIOA->IDR & GPIO_IDR_5 && GPIOA->IDR & GPIO_IDR_6)	{
-
-			//adjust by turning left
-			off_track = 1;
-			GPIOB->ODR &= 0xFF00;
-			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = (pwm-50) * 80; // Red = 20%
-			TIM2->CCR4 = pwm * 80; // Green = 90%
-
-		}
 		else if( GPIOA->IDR & GPIO_IDR_6 )	{
 
 			//keep going straight
@@ -122,6 +103,26 @@ int main(void)	{
 			TIM2->CCR3 = pwm * 80; // Red = 20%
 			TIM2->CCR4 = pwm * 80; // Green = 90%
 			off_track = 0;
+
+		}
+		else if( GPIOA->IDR & GPIO_IDR_7 )	{
+
+			//adjust by turning right
+			off_track = 1;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = (pwm-20) * 80; // Green = 90%
+
+		}
+		else if( GPIOA->IDR & GPIO_IDR_5 )	{
+
+			//adjust by turning left
+			off_track = 1;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = (pwm-20) * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
 
 		}
 		else	{
@@ -314,15 +315,8 @@ void EXTI0_1_IRQHandler(void)	{
 
 	if (start == 1){
 
-		if( ~GPIOA->IDR & GPIO_IDR_0 && ~GPIOA->IDR & GPIO_IDR_1 &&
-				GPIOA->IDR & GPIO_IDR_5 && GPIOA->IDR & GPIO_IDR_6 && GPIOA->IDR & GPIO_IDR_7 ){
 
-			//finish the mapping
-			start = 2;
-			mode = 0;
-
-		}
-		else if(~GPIOA->IDR & GPIO_IDR_0 && turning != 2 && turning != 3){
+		if(~GPIOA->IDR & GPIO_IDR_0 && turning != 2 && turning != 3){
 
 			turning = 2;
 
@@ -410,6 +404,15 @@ void stop(void)	{
 
 	}
 	else if ( pwm == 0 )	{
+
+		if( ~GPIOA->IDR & GPIO_IDR_0 && ~GPIOA->IDR & GPIO_IDR_1 &&
+				GPIOA->IDR & GPIO_IDR_5 && GPIOA->IDR & GPIO_IDR_6 && GPIOA->IDR & GPIO_IDR_7 ){
+
+			//finish the mapping
+			start = 2;
+			mode = 0;
+
+		}
 
 		if ( GPIOA->IDR & GPIO_IDR_6 && (turning == 3 || turning == 2)){
 
