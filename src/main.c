@@ -36,6 +36,7 @@ int mode = 0; // stop = 0; forward = 1; left = 2; right = 3;
 int off_track = 0;
 int turning = 0;
 int start = 0;
+int hold = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -72,7 +73,7 @@ int main(void)	{
 		j++;
 		//
 		//if in turning mode it will check whether the 2 middle sensors are high
-		if( mode == 0 || mode == 1){
+		/*if( mode == 0 || mode == 1){
 
 			//if going straight or stopping do nothing
 
@@ -88,7 +89,7 @@ int main(void)	{
 			turning = 1;
 			mode = 0;
 
-		}
+		}*/
 
 		if( GPIOA->IDR & 0b11 && mode != 1)	{
 
@@ -194,6 +195,7 @@ void TIM6_IRQHandler (void)	{
 
 	if (mode == 0){
 
+		stop();
 		stop();
 		stop();
 
@@ -413,12 +415,12 @@ void stop(void)	{
 			mode = 0;
 
 		}
-
+		/*
 		if ( GPIOA->IDR & GPIO_IDR_6 && (turning == 3 || turning == 2)){
 
 			turning = 1;
 
-		}
+		}*/
 		if (turning != 0)	{
 
 			mode = turning;
@@ -450,6 +452,22 @@ void turn_left(void)	{
 		TIM2->CCR4 = pwm * 80; // Green = 90%
 
 	}
+	else {
+
+		if (hold < 2){
+
+			hold++;
+
+		}
+		else {
+
+			turning = 1;
+			mode = 0;
+			hold = 0;
+
+		}
+
+	}
 
 
 
@@ -467,6 +485,23 @@ void turn_right(void)	{
 		//TIM2->CCR2= pwm * 80; // Green = 90%
 		TIM2->CCR3 = pwm * 80; // Red = 20%
 		TIM2->CCR4 = pwm * 80; // Green = 90%
+
+	}
+	else {
+
+		if (hold < 2){
+
+			hold++;
+
+		}
+		else {
+
+			turning = 1;
+			mode = 0;
+			hold = 0;
+
+		}
+
 
 	}
 
