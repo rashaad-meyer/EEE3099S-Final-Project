@@ -37,6 +37,8 @@ int off_track = 0;
 int turning = 0;
 int start = 0;
 int hold = 0;
+int constant = 18;// works with 5
+int interrupt = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -60,6 +62,8 @@ void stop(void);
 **===========================================================================
 */
 int main(void)	{
+
+
 
 	init_push_buttons();
 	init_leds();
@@ -90,8 +94,15 @@ int main(void)	{
 			mode = 0;
 
 		}*/
+		if(start == 0){
 
-		if( GPIOA->IDR & 0b11 && mode != 1)	{
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+
+		}
+		else if( (GPIOA->IDR & 0b11 && mode != 1)||interrupt == 1 )	{
 
 			//bypasses else if statements below if left or right sensor is high
 
@@ -99,6 +110,8 @@ int main(void)	{
 		else if( GPIOA->IDR & GPIO_IDR_6 )	{
 
 			//keep going straight
+			if (pwm ==0){	mode = 1;	}
+
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
@@ -109,28 +122,32 @@ int main(void)	{
 		else if( GPIOA->IDR & GPIO_IDR_7 )	{
 
 			//adjust by turning right
+			if (pwm ==0){	mode = 1;	}
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (pwm-20) * 80; // Green = 90%
+			TIM2->CCR3 = pwm * 80; // left
+			TIM2->CCR4 = (pwm-35) * 80; // right
 
 		}
 		else if( GPIOA->IDR & GPIO_IDR_5 )	{
 
 			//adjust by turning left
+			if (pwm ==0){	mode = 1;	}
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
-			TIM2->CCR3 = (pwm-20) * 80; // Red = 20%
-			TIM2->CCR4 = pwm * 80; // Green = 90%
+			TIM2->CCR3 = (pwm-35) * 80; // left
+			TIM2->CCR4 = pwm * 80; // right
 
 		}
-		else	{
+		else if( mode != 0 && interrupt == 0 ){
 
-			//turn around
-			turning = 2;
-			mode = 0;
+				GPIOB->ODR &= 0xFF0F;
+				GPIOB->ODR |= GPIO_ODR_6;
+				//turn around
+				turning = 2;
+				mode = 4;
 
 		}
 	}
@@ -153,8 +170,8 @@ void init_push_buttons(void) {
 	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR0|GPIO_PUPDR_PUPDR1|GPIO_PUPDR_PUPDR2|
 			GPIO_PUPDR_PUPDR3|GPIO_PUPDR_PUPDR7|GPIO_PUPDR_PUPDR5|GPIO_PUPDR_PUPDR6);
 
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR0_0; //enable pull up for PA0
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_0; //enable pull up for PA1
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR0_1; //enable pull down for PA0
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR1_1; //enable pull down for PA1
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR2_0; //enable pull up for PA2
 	GPIOA->PUPDR |= GPIO_PUPDR_PUPDR3_0; //enable pull up for PA3
 
@@ -196,8 +213,6 @@ void TIM6_IRQHandler (void)	{
 	if (mode == 0){
 
 		stop();
-		stop();
-		stop();
 
 	}
 	else if (mode == 1){
@@ -213,6 +228,35 @@ void TIM6_IRQHandler (void)	{
 	else if (mode == 3){
 
 		turn_right();
+
+	}
+	else if (mode == 4){
+
+		TIM2->CCR3 = 0 * 80; // Red = 20%
+		TIM2->CCR4 = 0 * 80; // Green = 90%
+		GPIOB->ODR &= 0xFF00;
+		GPIOB->ODR |= 0b1001;
+
+		while (!(GPIOA->IDR & GPIO_IDR_6)){
+
+			TIM2->CCR3 = 100 * 80; // Red = 20%
+			TIM2->CCR4 = 100 * 80; // Green = 90%
+
+
+		}
+		TIM2->CCR3 = 0 * 80; // Red = 20%
+		TIM2->CCR4 = 0 * 80; // Green = 90%
+		GPIOB->ODR &= 0xFF00;
+		GPIOB->ODR |= 0b1010;
+
+		while(!(GPIOA->IDR & GPIO_IDR_6)){
+
+			TIM2->CCR3 = 100 * 80; // Red = 20%
+			TIM2->CCR4 = 100 * 80; // Green = 90%
+
+		}
+
+		mode = 1;
 
 	}
 
@@ -313,17 +357,22 @@ void EXTI0_1_IRQHandler(void)	{
 	EXTI -> PR |= EXTI_PR_PR0; // clear the interrupt pending bit
 	// User Interrupt Service Routine Here
 	//mode = 1;
+	GPIOB->ODR |= GPIO_ODR_7;
 	mode = 0;
+	interrupt = 1;
+	if (start == 0){
 
+
+	}
 	if (start == 1){
 
 
-		if(~GPIOA->IDR & GPIO_IDR_0 && turning != 2 && turning != 3){
+		if(GPIOA->IDR & GPIO_IDR_0 && turning != 2 && turning != 3){
 
 			turning = 2;
 
 		}
-		else if(~GPIOA->IDR & GPIO_IDR_1 && turning != 2 && turning != 3) {
+		else if(GPIOA->IDR & GPIO_IDR_1 && turning != 2 && turning != 3) {
 
 			turning = 3;
 
@@ -399,37 +448,43 @@ void forward(void)	{
 }
 
 void stop(void)	{
+	pwm -= pwm%30;
 
 	if ( pwm > 0 )	{
 
-		pwm -= 10;
+		pwm -= 30;
 
 	}
 	else if ( pwm == 0 )	{
 
-		if( ~GPIOA->IDR & GPIO_IDR_0 && ~GPIOA->IDR & GPIO_IDR_1 &&
+		if( GPIOA->IDR & GPIO_IDR_0 && GPIOA->IDR & GPIO_IDR_1 &&
 				GPIOA->IDR & GPIO_IDR_5 && GPIOA->IDR & GPIO_IDR_6 && GPIOA->IDR & GPIO_IDR_7 ){
-
+			GPIOB->ODR &= 0xFF0F;
+			GPIOB->ODR |= GPIO_ODR_7;
 			//finish the mapping
 			start = 2;
 			mode = 0;
 
 		}
-		/*
-		if ( GPIOA->IDR & GPIO_IDR_6 && (turning == 3 || turning == 2)){
 
-			turning = 1;
+		else if ((turning == 3 || turning == 2)){
 
-		}*/
-		if (turning != 0)	{
 
 			mode = turning;
-			turning = 0;
+			turning = 4;
 
 		}
+		else if (turning == 4)	{
 
+			interrupt = 0;
+			mode = 1;
+			turning = 0;
+
+
+		}
 		GPIOB->ODR &= 0xFF00;
 		GPIOB->ODR |= 0b0110;
+
 
 	}
 
@@ -454,7 +509,7 @@ void turn_left(void)	{
 	}
 	else {
 
-		if (hold < 2){
+		if (hold < constant){
 
 			hold++;
 
@@ -489,7 +544,7 @@ void turn_right(void)	{
 	}
 	else {
 
-		if (hold < 2){
+		if (hold < constant){
 
 			hold++;
 
