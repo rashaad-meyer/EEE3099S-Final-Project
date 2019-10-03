@@ -37,8 +37,9 @@ int off_track = 0;
 int turning = 0;
 int start = 0;
 int hold = 0;
-int constant = 18;// works with 5
+int constant = 1000;// works with 5
 int interrupt = 0;
+int left = 0;
 /* Private function prototypes */
 /* Private functions */
 void init_push_buttons(void);
@@ -67,51 +68,246 @@ int main(void)	{
 
 	init_push_buttons();
 	init_leds();
-	init_EXTI();
+	//init_EXTI();
 	init_PWM();
 	init_TIM6();
+
 	/* TODO - Add your application code here */
-	int j = 0;
 	/* Infinite loop */
-	while (1)	{
-		j++;
+	for(;;)	{
 		//
 		//if in turning mode it will check whether the 2 middle sensors are high
-		/*if( mode == 0 || mode == 1){
+		if ((GPIOA->IDR & GPIO_IDR_2)==0){
 
-			//if going straight or stopping do nothing
-
-		}
-		else if (GPIOA->IDR & GPIO_IDR_7 && mode == 3){
-
-			turning = 1;
-			mode = 0;
+			start = 1;
+			GPIOB->ODR |= GPIO_ODR_4;
 
 		}
-		else if (GPIOA->IDR & GPIO_IDR_5 && mode == 2){
-
-			turning = 1;
-			mode = 0;
-
-		}*/
-		if(start == 0){
+		if(start == 0||start == 2){
 
 			pwm = 0;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
 			TIM2->CCR4 = pwm * 80; // Green = 90%
+			if (start == 2 ){
 
+				GPIOB->ODR |= GPIO_ODR_7;
+
+			}
 
 		}
-		else if( (GPIOA->IDR & 0b11 && mode != 1)||interrupt == 1 )	{
+		else if (GPIOA->IDR & GPIO_IDR_0){
+			//left
+			pwm = 100;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+			int temp = hold;
 
-			//bypasses else if statements below if left or right sensor is high
+			while(temp == hold){
+
+				//delay
+
+			}
+
+			temp = hold;
+
+			while(temp == hold){
+
+				//delay
+
+			}
+
+			pwm = 0;
+
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+
+			temp = hold;
+			while(temp == hold){
+
+				//delay
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+				//delay
+
+			}
+
+
+			if (GPIOA->IDR & (GPIO_IDR_0) && GPIOA->IDR & (GPIO_IDR_1) && GPIOA->IDR & (GPIO_IDR_5)
+					&& GPIOA->IDR & (GPIO_IDR_6) && GPIOA->IDR & (GPIO_IDR_7)){
+
+				start = 2;
+
+
+			}
+
+			if (start==2){
+
+				GPIOB->ODR |= GPIO_ODR_7;
+				start = 2;
+				pwm = 0;
+
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+				GPIOB->ODR &= 0xFF00;
+				GPIOB->ODR |= 0b0110;
+
+			}
+			else{
+
+				pwm = 0;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+				GPIOB->ODR &= 0xFF00;
+				GPIOB->ODR |= 0b1010;
+
+				pwm = 100;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+
+
+				/*while ( (GPIOA->IDR & GPIO_IDR_6) ){
+
+					//hold
+
+				}*/
+
+				temp = hold;
+				while(temp == hold){
+
+					//delay
+
+				}
+				temp = hold;
+				while(temp == hold){
+
+					//delay
+
+				}
+
+				while ( !(GPIOA->IDR & GPIO_IDR_6) ){
+
+					//hold
+
+				}
+				pwm = 0;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+
+				GPIOB->ODR &= 0xFF00;
+				GPIOB->ODR |= 0b0110;
+
+				pwm = 100;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+			}
+
+		}
+		else if (GPIOA->IDR & GPIO_IDR_1)	{
+
+			pwm = 100;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			while (GPIOA->IDR & GPIO_IDR_1){
+
+				if (GPIOA->IDR & GPIO_IDR_0){
+
+					left = 1;
+
+				}
+
+			}
+			int temp = hold;
+
+			while(temp == hold){
+				//delay
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+				//delay
+
+			}
+			if(GPIOA->IDR & GPIO_IDR_6|| left == 1){
+
+				left = 0;
+
+			}
+			else{
+
+				int temp = hold;
+
+				while(temp == hold){
+					//delay
+
+				}
+
+				temp = hold;
+				while(temp == hold){
+
+					//delay
+
+				}
+
+				pwm = 0;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+				GPIOB->ODR &= 0xFF00;
+				GPIOB->ODR |= 0b0101;
+
+				pwm = 100;
+				TIM2->CCR3 = pwm * 80; // Red = 20%
+				TIM2->CCR4 = pwm * 80; // Green = 90%
+
+				temp = hold;
+				while(temp == hold){
+
+					//delay
+
+				}
+				temp = hold;
+				while(temp == hold){
+
+					//delay
+
+				}
+
+				while ( !(GPIOA->IDR & GPIO_IDR_6) ){
+
+					//hold
+
+				}
+
+			}
+
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+
+
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
 
 		}
 		else if( GPIOA->IDR & GPIO_IDR_6 )	{
 
 			//keep going straight
-			if (pwm ==0){	mode = 1;	}
-
+			pwm = 100;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
 			TIM2->CCR3 = pwm * 80; // Red = 20%
@@ -123,6 +319,7 @@ int main(void)	{
 
 			//adjust by turning right
 			if (pwm ==0){	mode = 1;	}
+			pwm = 100;
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
@@ -134,6 +331,7 @@ int main(void)	{
 
 			//adjust by turning left
 			if (pwm ==0){	mode = 1;	}
+			pwm = 100;
 			off_track = 1;
 			GPIOB->ODR &= 0xFF00;
 			GPIOB->ODR |= 0b0110;
@@ -141,16 +339,263 @@ int main(void)	{
 			TIM2->CCR4 = pwm * 80; // right
 
 		}
-		else if( mode != 0 && interrupt == 0 ){
+		else{
 
-				GPIOB->ODR &= 0xFF0F;
-				GPIOB->ODR |= GPIO_ODR_6;
-				//turn around
-				turning = 2;
-				mode = 4;
+			int temp = hold;
+			int check = 0;
+
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			//check
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b1010;
+
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			//check
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0101;
+
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+			//re
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			//check
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b1010;
+
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			temp = hold;
+			while(temp == hold){
+
+				if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7) ){
+
+					check = 1;
+
+				}
+
+			}
+
+
+			if (check == 1){
+
+				check = 0;
+
+
+			}
+			else{
+			pwm = 0;
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b1010;
+
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			int temp = hold;
+			while(temp == hold){
+
+
+			}
+
+
+			temp = hold;
+			while(temp == hold){
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+			}
+			temp = hold;
+			while(temp == hold){
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+			}			temp = hold;
+			while(temp == hold){
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+			}			temp = hold;
+			while(temp == hold){
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+			}
+
+
+
+			pwm = 0;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			check = 0;
+
+			temp = hold;
+			while(temp == hold){
+
+			}
+
+			temp = hold;
+			while(temp == hold){
+
+			}
+
 
 		}
+			if(GPIOA->IDR & (GPIO_IDR_5|GPIO_IDR_6|GPIO_IDR_7)){
+
+			GPIOB->ODR &= 0xFF00;
+			GPIOB->ODR |= 0b0110;
+			pwm = 100;
+			TIM2->CCR3 = pwm * 80; // Red = 20%
+			TIM2->CCR4 = pwm * 80; // Green = 90%
+
+			}
+		}
 	}
+
+	//GPIOB->ODR |= GPIO_ODR_5;
 }
 
 void init_push_buttons(void) {
@@ -209,7 +654,18 @@ void TIM6_IRQHandler (void)	{
 
 	TIM6 -> SR &= ~TIM_SR_UIF;// EXIT TIM6 INTERRUPT EVENT
 	// User Interrupt Service Routine Here
+	if (hold == 0){
 
+		hold = 1;
+
+	}
+	else{
+
+		hold = 0;
+
+	}
+
+	/*
 	if (mode == 0){
 
 		stop();
@@ -258,34 +714,9 @@ void TIM6_IRQHandler (void)	{
 
 		mode = 1;
 
-	}
+	}*/
 
-	/*
-	if (increase == 1){
-		if (pwm < 100)	{
-			pwm+=5;
-			//TIM2->CCR1 = pwm * 80; // Red = 20%
-			//TIM2->CCR2 = (100 - pwm) * 80; // Green = 90%
-			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (100 - pwm) * 80; // Green = 90%
-		}
-		else{
-			increase = 0;
-		}
-	}
-	else	{
-		if (pwm > 0)	{
-			pwm-=5;
-			//TIM2->CCR1 = pwm * 80; // Red = 20%
-			//TIM2->CCR2 = (100 - pwm) * 80; // Green = 90%
-			TIM2->CCR3 = pwm * 80; // Red = 20%
-			TIM2->CCR4 = (100 - pwm) * 80; // Green = 90%
-		}
-		else	{
-			increase = 1;
-		}
-	}
-	*/
+
 }
 
 void init_PWM(void) {
@@ -351,12 +782,13 @@ void init_EXTI (void)	{
 	//NVIC_EnableIRQ(EXTI4_15_IRQn); // enable EXTI4 to EXTI15 interrupt line in the NVIC
 
 }
-
+/*
 void EXTI0_1_IRQHandler(void)	{
 
 	EXTI -> PR |= EXTI_PR_PR0; // clear the interrupt pending bit
 	// User Interrupt Service Routine Here
 	//mode = 1;
+
 	GPIOB->ODR |= GPIO_ODR_7;
 	mode = 0;
 	interrupt = 1;
@@ -385,26 +817,17 @@ void EXTI0_1_IRQHandler(void)	{
 
 	}
 
-}
-
+}*/
+/*
 void EXTI2_3_IRQHandler(void)	{
 
 	EXTI -> PR |= EXTI_PR_PR2; // clear the interrupt pending bit
 	// User Interrupt Service Routine Here
-	/*if ( i > 0 ){
-		GPIOB->ODR &= 0xFF00;
-		GPIOB->ODR |= i<<2;
-		i--;
-	}
-	else{
-		GPIOB->ODR &= 0xFFFF;
-		i = 63;
-	}*/
+
 	//turn_right();
 	if (start == 0){
 
 		start = 1;
-		mode = 1;
 
 	}
 	else if (start == 2){
@@ -413,7 +836,7 @@ void EXTI2_3_IRQHandler(void)	{
 		mode = 1;
 
 	}
-}
+}*/
 /*
 void EXTI4_15_IRQHandler(void)	{
 
